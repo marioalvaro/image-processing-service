@@ -5,6 +5,7 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 const app = express();
+const authRoutes = require('./routes/auth.routes');
 
 // Middlewares
 app.use(helmet());
@@ -12,6 +13,7 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/api/auth', authRoutes);
 
 // Health Check Endpoint
 app.get('/health', (req, res) => {
@@ -24,4 +26,4 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-module.exports = app; // Export for testing
+module.exports = app;
