@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const app = express();
 const authRoutes = require('./routes/auth.routes');
+const imageRoutes = require('./routes/image.routes');
 
 // Middlewares
 app.use(helmet());
@@ -14,6 +15,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
+app.use('/api/images', imageRoutes);
 
 // Health Check Endpoint
 app.get('/health', (req, res) => {
