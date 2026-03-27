@@ -1,6 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const { PrismaPg } = require('@prisma/adapter-pg');
 const { uploadToS3 } = require('../services/storage.service');
+const { enqueueImageJob } = require('../queues/image.queue');
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -26,6 +27,9 @@ const uploadImage = async (req, res) => {
         },
       },
     });
+
+    const s3Key = s3Url.split('/').pop(); 
+    await enqueueImageJob(image.id, s3Key, req.file.originalname);
 
     res.status(201).json({ message: 'Image uploaded successfully', image });
   } catch (error) {
