@@ -28,13 +28,28 @@ const uploadImage = async (req, res) => {
       },
     });
 
-    const s3Key = s3Url.split('/').pop(); 
-    await enqueueImageJob(image.id, s3Key, req.file.originalname);
 
     res.status(201).json({ message: 'Image uploaded successfully', image });
   } catch (error) {
     console.error('Upload Error:', error);
     res.status(500).json({ error: 'Failed to process image upload.' });
+  }
+};
+
+const getImage = async (req, res) => {
+  try {
+    const image = await prisma.image.findUnique({
+      where: { 
+        id: req.params.id,
+        userId: req.user.userId // Security: Ensure they own it
+      }
+    });
+
+    if (!image) return res.status(404).json({ error: 'Image not found.' });
+
+    res.status(200).json(image);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error.' });
   }
 };
 
@@ -52,4 +67,4 @@ const listImages = async (req, res) => {
   }
 };
 
-module.exports = { uploadImage, listImages };
+module.exports = { uploadImage, getImage, listImages };
