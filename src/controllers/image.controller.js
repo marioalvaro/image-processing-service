@@ -67,4 +67,26 @@ const listImages = async (req, res) => {
   }
 };
 
-module.exports = { uploadImage, getImage, listImages };
+const transformImage = async (req, res) => {
+  try {
+    const { transformations } = req.body;
+    
+    const image = await prisma.image.findUnique({
+      where: { id: req.params.id, userId: req.user.userId }
+    });
+
+    if (!image) return res.status(404).json({ error: 'Image not found.' });
+
+    const s3Key = image.originalUrl.split('/').pop(); 
+    await enqueueImageJob(image.id, s3Key, image.metadata.originalName, transformations);
+
+    res.status(202).json({ 
+      message: 'Transformations queued successfully.', 
+      image: image 
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { uploadImage, getImage, listImages, transformImage };

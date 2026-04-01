@@ -1,5 +1,5 @@
 const express = require('express');
-const { uploadImage, getImage, listImages } = require('../controllers/image.controller');
+const { uploadImage, getImage, listImages, transformImage } = require('../controllers/image.controller');
 const authenticateToken = require('../middlewares/auth.middleware');
 const upload = require('../middlewares/upload.middleware');
 
@@ -12,5 +12,6 @@ router.use(authenticateToken);
 router.post('/', upload.single('image'), uploadImage);
 router.get('/:id', getImage);
 router.get('/', listImages);
+router.post('/:id/transform', transformImage);
 
 module.exports = router;

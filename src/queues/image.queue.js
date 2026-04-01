@@ -8,11 +8,12 @@ const connection = new IORedis(process.env.REDIS_URL, {
 
 const imageQueue = new Queue('image-processing', { connection });
 
-const enqueueImageJob = async (imageId, s3Key, originalName) => {
+const enqueueImageJob = async (imageId, s3Key, originalName, transformations) => {
   await imageQueue.add('process-image', {
     imageId,
     s3Key,
-    originalName
+    originalName,
+    transformations
   }, {
     attempts: 3, 
     backoff: {
