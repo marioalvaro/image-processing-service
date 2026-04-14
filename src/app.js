@@ -7,6 +7,7 @@ require('dotenv').config();
 const app = express();
 const authRoutes = require('./routes/auth.routes');
 const imageRoutes = require('./routes/image.routes');
+const { globalLimiter } = require('./middlewares/rateLimiter.middleware');
 
 // Middlewares
 app.use(helmet());
@@ -14,6 +15,7 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(globalLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/images', imageRoutes);
 
