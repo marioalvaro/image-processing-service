@@ -1,0 +1,44 @@
+name: Build and Push Docker Image
+
+# 1. When should this pipeline run? 
+# Only when you push to the 'main' branch.
+on:
+  push:
+    branches:
+      - main
+
+# Permissions needed for GitHub Actions to push to the registry
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Download your code onto the GitHub Server
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Login to GitHub's Container Registry
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 3: Convert your repository name to lowercase (Docker requires lowercase)
+      - name: Set lower case owner name
+        id: repo_name
+        run: |
+          echo "IMAGE_NAME=$(echo ghcr.io/${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      # Step 4: Build the Docker Image and Push it to GHCR
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:latest
